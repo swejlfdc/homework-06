@@ -1,0 +1,1 @@
+on each move of pieces, the program reconstruct the whole board. It is a waste of consuming. 

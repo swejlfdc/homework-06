@@ -1,0 +1,8 @@
+1. 多个参数提交 complete
+2. 增加精度 complete
+2. 限制提交命令长度，如果超长则断开连接 partial complete
+3. 记录日志
+4. 断开未登陆用户 complete
+5. 用户开始后禁止登陆 completed
+6. 避免一个用户多次提交 completed
+7. 自动分配端口 complete

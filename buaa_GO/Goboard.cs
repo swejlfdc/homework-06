@@ -16,7 +16,9 @@ using System.Diagnostics;
 
 namespace Go_WinApp
 {
-
+    /*
+     * Go piecies color
+     **/
 	public enum StoneColor : byte
 	{
 		black = 0, white = 1
@@ -30,16 +32,16 @@ namespace Go_WinApp
 	{
 		string [] strLabels; // {"Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z","Z"};
 
-		int nSize;		                //ZZZZ ZZ ZZZ ZZZZZ, ZZZZZZZ ZZ 19
+		int nSize;		                //the size of Chinese Go board is 19 * 19 lines
 		const int nBoardMargin = 10;	//ZZZZZZ ZZ ZZZ ZZZZ ZZ ZZZ ZZZZZ
 		int nCoodStart = 4;
-		const int	nBoardOffset = 20;
+		const int	nBoardOffset = 20;  // the offset of initial location of board
 		int nEdgeLen = nBoardOffset + nBoardMargin;
-		int nTotalGridWidth = 360 + 36;	//ZZZ ZZZZZ ZZZZZ ZZ ZZZZZ ZZZZ
-		int nUnitGridWidth = 22;		//ZZZ ZZZZZ ZZ ZZZZ ZZZZ
+		int nTotalGridWidth = 360 + 36;	// the length of board
+		int nUnitGridWidth = 22;		// the length of unit grid
 		int nSeq = 0;
 		Rectangle rGrid;		    //ZZZ ZZZZ ZZZZ
-		StoneColor m_colorToPlay;   //ZZZZZ ZZZZZ ZZZZZZ ZZZZ. 
+		StoneColor m_colorToPlay;   // the color of pieces
 		GoMove m_gmLastMove;	    //ZZZ ZZZZ ZZZZ, 
 		Boolean bDrawMark;	        //ZZZZZZZ ZZ ZZZ ZZ ZZZZ ZZZ ZZZZ. 
 		Boolean m_fAnyKill;	        //ZZZZZZZZ ZZZ ZZZZZZZZ ZZ ZZZ ZZZZ ZZZZ
@@ -47,15 +49,15 @@ namespace Go_WinApp
 		Pen penGrid, penStoneW, penStoneB,penMarkW, penMarkB;
 		Brush brStar, brBoard, brBlack, brWhite, m_brMark;
 	
-        // ZZZZ ZZZZZZZZZ
-        int nFFMove = 10;   //ZZ ZZZZ ZZZ ZZZZ 10 ZZZZZ. 
-        int nRewindMove = 10;  // ZZZZZZ; 
+        // fast movement steps
+        int nFFMove = 10;   // the number of steps of fast foward move. 
+        int nRewindMove = 10;  // the number of steps of fast rewind move. 
 
 		GoTree	gameTree;
 
-		/// <ZZZZZZZ>
-		///    ZZZZZZZZ ZZZZZZZZ ZZZZZZZZ.
-		/// </ZZZZZZZ>
+		/// <summary>
+		///    windows controler
+		/// </summary>
 		private System.ComponentModel.Container components;
 		private System.Windows.Forms.TextBox textBox1;
 		private System.Windows.Forms.Button Rewind;
@@ -68,7 +70,7 @@ namespace Go_WinApp
 		public GoBoard(int nSize)
 		{
 			//
-			// ZZZZZZZZ ZZZ ZZZZZZZ ZZZZ ZZZZZZZZ ZZZZZZZ
+			// Generate form and some callable component
 			//
 			InitializeComponent();
 
@@ -76,22 +78,26 @@ namespace Go_WinApp
 			// ZZZZ: ZZZ ZZZ ZZZZZZZZZZZ ZZZZ ZZZZZ ZZZZZZZZZZZZZZZZZZZ ZZZZ
 			//
 
-			this.nSize = nSize;  //ZZZZZZZZZ ZZZZ.
+			this.nSize = nSize;  // set the size of board
+            // 这个设计并不理想，如果想要是的围棋的棋盘大小可以改变而又有扩展性，不该将参数放在构造函数里
+            // 这样设计每次改变棋盘大小都必须重新生成form，造成不必要的开销
 
-			m_colorToPlay = StoneColor.black;
+			m_colorToPlay = StoneColor.black; // set pieces color
 
+            // Initialize a Grid of Board. Each Spot can be set on a Stone
 			Grid = new Spot[nSize,nSize];
 			for (int i=0; i<nSize; i++)
 				for (int j=0; j<nSize; j++)
 					Grid[i,j] = new Spot();
+            // Initialize pen controls
 			penGrid = new Pen(Color.Brown, (float)0.5);
 			penStoneW = new Pen(Color.WhiteSmoke, (float)1);
 			penStoneB = new Pen(Color.Black,(float)1);
-			penMarkW = new Pen(Color.Blue, (float) 1);
+			penMarkW = new Pen(Color.Blue, (float) 1); 
 			penMarkB = new Pen(Color.Beige, (float) 1);
 
 			brStar = new SolidBrush(Color.Black);
-			brBoard = new SolidBrush(Color.Orange);
+			brBoard = new SolidBrush(Color.Orange); // board background color
 			brBlack = new SolidBrush(Color.Black);
 			brWhite = new SolidBrush(Color.White);
 			m_brMark = new SolidBrush(Color.Red);
@@ -101,10 +107,10 @@ namespace Go_WinApp
 			gameTree = new GoTree();
 		}
 
-		/// <ZZZZZZZ>
-		///    ZZZZZZZZ ZZZZZZ ZZZ ZZZZZZZZ ZZZZZZZ - ZZ ZZZ ZZZZZZ
-		///    ZZZ ZZZZZZZZ ZZ ZZZZ ZZZZZZ ZZZZ ZZZ ZZZZ ZZZZZZ.
-		/// </ZZZZZZZ>
+		/// <Summary>
+		///    Generate the widget of form.
+		///    Default Component will be initialized
+		/// </Summary>
 		private void InitializeComponent()
 		{
             this.Open = new System.Windows.Forms.Button();
@@ -116,75 +122,75 @@ namespace Go_WinApp
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // ZZZZ
+            // Open
             // 
-            this.Open.Location = new System.Drawing.Point(445, 88);
+            this.Open.Location = new System.Drawing.Point(534, 95);
             this.Open.Name = "Open";
-            this.Open.Size = new System.Drawing.Size(56, 23);
+            this.Open.Size = new System.Drawing.Size(67, 25);
             this.Open.TabIndex = 2;
             this.Open.Text = "open";
             this.Open.Click += new System.EventHandler(this.Open_Click);
             // 
-            // ZZZZ
+            // Save
             // 
-            this.Save.Location = new System.Drawing.Point(509, 88);
+            this.Save.Location = new System.Drawing.Point(611, 95);
             this.Save.Name = "Save";
-            this.Save.Size = new System.Drawing.Size(56, 23);
+            this.Save.Size = new System.Drawing.Size(67, 25);
             this.Save.TabIndex = 3;
             this.Save.Text = "save";
             this.Save.Click += new System.EventHandler(this.Save_Click);
             // 
-            // ZZZZZZ
+            // Rewind
             // 
-            this.Rewind.Location = new System.Drawing.Point(509, 56);
+            this.Rewind.Location = new System.Drawing.Point(611, 60);
             this.Rewind.Name = "Rewind";
-            this.Rewind.Size = new System.Drawing.Size(56, 23);
+            this.Rewind.Size = new System.Drawing.Size(67, 25);
             this.Rewind.TabIndex = 5;
             this.Rewind.Text = "<<";
             this.Rewind.Click += new System.EventHandler(this.Rewind_Click);
             // 
-            // ZZZZZZZ
+            // Forward
             // 
-            this.Forward.Location = new System.Drawing.Point(445, 24);
+            this.Forward.Location = new System.Drawing.Point(534, 26);
             this.Forward.Name = "Forward";
-            this.Forward.Size = new System.Drawing.Size(56, 23);
+            this.Forward.Size = new System.Drawing.Size(67, 25);
             this.Forward.TabIndex = 0;
             this.Forward.Text = ">";
             this.Forward.Click += new System.EventHandler(this.Forward_Click);
             // 
-            // ZZZZ
+            // Back
             // 
-            this.Back.Location = new System.Drawing.Point(509, 24);
+            this.Back.Location = new System.Drawing.Point(611, 26);
             this.Back.Name = "Back";
-            this.Back.Size = new System.Drawing.Size(56, 23);
+            this.Back.Size = new System.Drawing.Size(67, 25);
             this.Back.TabIndex = 1;
             this.Back.Text = "<";
             this.Back.Click += new System.EventHandler(this.Back_Click);
             // 
-            // ZZZZZZZZ
+            // FForward
             // 
-            this.FForward.Location = new System.Drawing.Point(445, 56);
+            this.FForward.Location = new System.Drawing.Point(534, 60);
             this.FForward.Name = "FForward";
-            this.FForward.Size = new System.Drawing.Size(56, 23);
+            this.FForward.Size = new System.Drawing.Size(67, 25);
             this.FForward.TabIndex = 4;
             this.FForward.Text = ">>";
             this.FForward.Click += new System.EventHandler(this.FForward_Click);
             // 
-            // ZZZZZZZ1
+            // textBox1
             // 
-            this.textBox1.Location = new System.Drawing.Point(447, 128);
+            this.textBox1.Location = new System.Drawing.Point(536, 138);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(120, 311);
+            this.textBox1.Size = new System.Drawing.Size(144, 335);
             this.textBox1.TabIndex = 6;
-            this.textBox1.Text = "please oepn a .sgf file to view, or just play on the board";
+            this.textBox1.Text = "please open a .sgf file to view, or just play on the board";
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
-            // ZZZZZZZ
+            // GoBoard
             // 
-            this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
+            this.AutoScaleBaseSize = new System.Drawing.Size(6, 14);
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(581, 478);
+            this.ClientSize = new System.Drawing.Size(702, 495);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.Rewind);
             this.Controls.Add(this.FForward);
@@ -194,9 +200,9 @@ namespace Go_WinApp
             this.Controls.Add(this.Forward);
             this.Name = "GoBoard";
             this.Text = "Go_WinForm";
+            this.Click += new System.EventHandler(this.GoBoard_Click);
             this.Paint += new System.Windows.Forms.PaintEventHandler(this.PaintHandler);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.MouseUpHandler);
-            this.Click += new System.EventHandler(this.GoBoard_Click);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -204,6 +210,7 @@ namespace Go_WinApp
 
 		protected void textBox1_TextChanged (object sender, System.EventArgs e)
 		{
+            // I do not still know the meaning of this event
 			return;
 		}
 
@@ -214,6 +221,7 @@ namespace Go_WinApp
 
 		protected void Save_Click (object sender, System.EventArgs e)
 		{
+            // Need to reconstruct
 			return;
 		}
 
@@ -225,11 +233,12 @@ namespace Go_WinApp
 
 		protected void Rewind_Click (object sender, System.EventArgs e)
 		{
-			gameTree.reset();
-			resetBoard();
-            showGameInfo();
+			gameTree.reset();   // Game tree reset
+			resetBoard();       // clear board
+            showGameInfo();     // display initial game information
 		}
 
+        // do fast movemnt for  nFFmove times
 		protected void FForward_Click (object sender, System.EventArgs e)
 		{
             if (gameTree != null)
@@ -247,30 +256,31 @@ namespace Go_WinApp
 
 		protected void Forward_Click (object sender, System.EventArgs e)
 		{
-			GoMove gm = gameTree.doNext();
+			GoMove gm = gameTree.doNext(); // Obtain the next movement
 			if (null != gm)
 			{
-				playNext(ref gm);
+				playNext(ref gm);           // Display next movement
 			}
 		}
 
 		private void showGameInfo()
 		{
-			//ZZZZ ZZZ ZZZZZZZZZZZ ZZ ZZZZ ZZZZ, ZZ ZZZ
+			// show the game info on textbox1
 			textBox1.Clear();
 			textBox1.AppendText(gameTree.Info);
 		}
 
 		protected void Back_Click (object sender, System.EventArgs e)
 		{
-			GoMove gm = gameTree.doPrev();	//ZZZZ ZZZ ZZZZZ ZZZZ ZZZZZZ ZZZZZZZ ZZZZ
+			GoMove gm = gameTree.doPrev();	//get prev movement
             if (null != gm)
             {
                 playPrev(gm);
             }
             else
             {
-                resetBoard();
+                // error reset all parameter
+                resetBoard(); 
                 showGameInfo(); 
             }
 		}
@@ -284,7 +294,7 @@ namespace Go_WinApp
 		{
 			return;
 		}
-
+        // Find a intial close cross point near  position (x, y)
 		private Point PointToGrid(int x, int y)
 		{
 			Point p= new Point(0,0);
@@ -307,9 +317,9 @@ namespace Go_WinApp
 			else 
 				return true;
 		}
-        /// <ZZZZZZZ>
+        /// <summary>
         /// 
-        /// </ZZZZZZZ>
+        /// </summary>
         /// <ZZZZZ ZZZZ="ZZZZZZ"></ZZZZZ>
         /// <ZZZZZ ZZZZ="Z"></ZZZZZ>
 		private void MouseUpHandler(Object sender,MouseEventArgs e)
@@ -319,10 +329,11 @@ namespace Go_WinApp
 
 			p = PointToGrid(e.X,e.Y);
 			if (!onBoard(p.X, p.Y) || !closeEnough(p,e.X, e.Y)|| Grid[p.X,p.Y].hasStone())
-				return; //ZZZZZZ ZZZZ Z ZZZZ ZZZZZ.
+				return; // Judge if mouse is clicked at a position which is close enough to a cross point
 
-			//ZZZZZ ZZZZ ZZ Z ZZZZZZ ZZZZ, ZZ ZZZZ ZZ ZZZ ZZZ ZZZZ ZZ ZZZ ZZZZ ZZZZ
+			// If mouse clicked at a accurate position, generate a movement object
 			gmThisMove = new GoMove(p.X, p.Y, m_colorToPlay, 0);
+            // play the current movement
 			playNext(ref gmThisMove);
 			gameTree.addMove(gmThisMove);
 		}
@@ -330,7 +341,7 @@ namespace Go_WinApp
 		public void playNext(ref GoMove gm) 
 		{
 			Point p = gm.Point;
-			m_colorToPlay = gm.Color;	//ZZZ ZZZZZ, ZZZZZZZZZ ZZZZ ZZZZZZ ZZZZ ZZZZ ZZZZ.
+			m_colorToPlay = gm.Color;	// Get current set point and the color of pieces
 
 			//ZZZZZ ZZZ ZZZZZ/ZZZZZZ ZZ ZZZZZZZ ZZZZZZZZZ
 			clearLabelsAndMarksOnBoard(); 
@@ -339,34 +350,35 @@ namespace Go_WinApp
 				repaintOneSpotNow(m_gmLastMove.Point);
 
 			bDrawMark = true;
-			Grid[p.X,p.Y].setStone(gm.Color);
-			m_gmLastMove = new GoMove(p.X, p.Y, gm.Color, nSeq++);
+			Grid[p.X,p.Y].setStone(gm.Color); // Draw stone on board
+			m_gmLastMove = new GoMove(p.X, p.Y, gm.Color, nSeq++); // generate last move object
 			//ZZZ ZZZZZ/ZZZZ
 			setLabelsOnBoard(gm);
 			setMarksOnBoard(gm);
-			
+			// clear dead block from the board
 			doDeadGroup(nextTurn(m_colorToPlay));
-			//ZZ ZZZ ZZZZZ ZZZ ZZZZ, ZZ ZZZZ ZZ ZZZZZZZZ ZZZZ, ZZ ZZZZ ZZ ZZZ ZZZZZZZ ZZZZ ZZ ZZZZZZZZ. 
+			//if any block of stones are killed, add the set to the current movement
 			if (m_fAnyKill)
-				appendDeadGroup(ref gm, nextTurn(m_colorToPlay));
-			else //ZZZZ ZZ ZZZ ZZ ZZ'Z Z ZZZZZZZ
+				appendDeadGroup(ref gm, nextTurn(m_colorToPlay)); 
+			else // if no opposite stones are killed maybe players are sb to kill a block of itself
 			{
-				doDeadGroup(m_colorToPlay);
-				if (m_fAnyKill)
+				doDeadGroup(m_colorToPlay); // test if the current player is a sb
+				if (m_fAnyKill)             // if current player is a sb, record he is a sb
 					appendDeadGroup(ref gm, m_colorToPlay);
 			}
-			m_fAnyKill = false;
+			m_fAnyKill = false; // reset flag
 			
 			optRepaint();
 
-			//ZZZZZZ ZZZZZ
+			// reset the current player color
 			m_colorToPlay = nextTurn(m_colorToPlay);
 			
-			//ZZZZ ZZZ ZZZZZZZ, ZZ ZZZ
+			//show the movement information
 			textBox1.Clear();
 			textBox1.AppendText(gm.Comment);
 		}
 
+        // add the dead group to the movement object
 		private void appendDeadGroup(ref GoMove gm, StoneColor c)
 		{
 			ArrayList a = new ArrayList();
@@ -378,8 +390,8 @@ namespace Go_WinApp
 						a.Add(pt);
 						Grid[i,j].setNoKilled();
 					}
-			gm.DeadGroup = a;
-			gm.DeadGroupColor = c;
+			gm.DeadGroup = a;       // set the dead stone
+			gm.DeadGroupColor = c;  // set the dead stone color
 		}
 
 		public void resetBoard()
@@ -393,20 +405,42 @@ namespace Go_WinApp
 		}
 
 		/*
-		 * ZZZZ ZZZ ZZZZ ZZ ZZZZ ZZZ ZZZZ ZZZZZZZZZ ZZ ZZZZ ZZZZZZ ZZZZ ZZZZ ZZ ZZZZZZ. 
-		 * ZZZZ ZZ ZZ:
-		 * 	1. ZZZZZZ ZZZ ZZZZZZZ ZZZZ ZZZZ ZZZ ZZZZZ
+		 * back the last play movement  
+		 * meet some requirement :
+		 * 	1. store the move position of player on board
 		 *  1.1 ZZZZ ZZZZZZ ZZZ "ZZZZZZZZ" ZZZZZZZZZZ
 		 *	2. store the stones got killed by current move
 		 *  3. ZZZZZZZZZZ ZZZ ZZZ "ZZZZZZZZ"
 		 */
 		public void playPrev(GoMove gm)
 		{
+            // need to reconstruct
+            Point p = gm.Point;
+			m_colorToPlay = gm.Color;	// Get current set point and the color of pieces
+
+			//ZZZZZ ZZZ ZZZZZ/ZZZZZZ ZZ ZZZZZZZ ZZZZZZZZZ
+			clearLabelsAndMarksOnBoard();
+            m_gmLastMove = gameTree.peekPrev();
+
+            bDrawMark = true;
+            Grid[p.X, p.Y].die();
+            if (gm.DeadGroup != null)
+            {
+                foreach (Point pt in gm.DeadGroup)
+                {
+                    Grid[pt.X, pt.Y].setStone(gm.DeadGroupColor);
+                }
+            }
+			optRepaint();
+			
+			//show the movement information
+			textBox1.Clear();
+			textBox1.AppendText(gm.Comment);
             return; 
         }
 
 				
-		
+		// get the grid region
 		Rectangle getUpdatedArea(int i, int j) 
 		{
 			int x = rGrid.X + i * nUnitGridWidth - nUnitGridWidth/2;
@@ -415,7 +449,8 @@ namespace Go_WinApp
 		}
 
 		/**
-		 * ZZZZZZZZ ZZZ ZZZZZZZ ZZZZ, ZZZZ ZZZZZZZ ZZZ ZZZZZZZ ZZZZZ ZZ ZZZ ZZZZZ
+		 * after every movement, a stone may set on board and some stones may be cleared
+         * repaint the board
 		 */
 		private void optRepaint()
 		{
@@ -425,7 +460,8 @@ namespace Go_WinApp
 			for (int i=0; i<nSize; i++)
 				for (int j=0; j<nSize; j++)
 					if (Grid[i,j].isUpdated()) 
-					{
+					{   
+                        // If Grid is different from the previous, repaint the region
 						r = getUpdatedArea(i,j);
 						re = new Region(r);
 						Invalidate(re);
@@ -453,6 +489,7 @@ namespace Go_WinApp
 			m_gmLastMove = new GoMove(p.X, p.Y, colorToPlay, nSeq++);
 		}
 
+        // Get next play color
 		StoneColor nextTurn(StoneColor c) 
 		{
 			if (c == StoneColor.black)
@@ -487,32 +524,34 @@ namespace Go_WinApp
 		}
 
 		/**
-		 * ZZZZZZ ZZZ ZZZZ ZZZZZ ZZZ ZZZZZ ZZZZ ZZZZ ZZZ ZZZZZ.
+		 * If a block of pieces on board is dead, clear it from the board
 		 */
 		void doDeadGroup(StoneColor c) 
 		{
+            m_fAnyKill = false;
 			int i,j;
 			for (i=0; i<nSize; i++)
 				for (j=0; j<nSize; j++) 
 					if (Grid[i,j].hasStone() &&
 						Grid[i,j].color() == c) 
 					{
-						if (calcLiberty(i,j,c) == 0)
+						if (calcLiberty(i,j,c) == 0) 
 						{
+                            // if a block of stone on board is dead, clear it
 							buryTheDead(i,j,c);
-							m_fAnyKill = true;
+							m_fAnyKill = true;  // set flag that a block of stone is killed
 						}
-						cleanScanStatus();
+						cleanScanStatus(); 
 					}
 		}
 
 
 		/**
-		 * ZZZZZZZZZ ZZZ ZZZZZZZ ZZ ZZZ ZZZZZ, ZZZZZZZZ ZZZZ ZZZ ZZZZZ.
+		 * Calculate the liberty (qi) of a block
 		 */
 		int calcLiberty(int x, int y, StoneColor c) 
 		{
-			int lib = 0; // ZZZZZZZ	
+			int lib = 0; // initialize liberty
 			
 			if (!onBoard(x,y))
 				return 0;
@@ -523,7 +562,7 @@ namespace Go_WinApp
 			{
 				if (Grid[x,y].color() == c) 
 				{
-					//ZZZ ZZZZZZZZZZ ZZZ ZZZZZZZ ZZZZZ.
+					//if finding a extension of block, go on finding liberty in for direction
 					Grid[x,y].setScanned();
 					lib += calcLiberty(x-1, y, c);
 					lib += calcLiberty(x+1, y, c);
@@ -534,7 +573,7 @@ namespace Go_WinApp
 					return 0;
 			} 
 			else 
-			{// ZZZZ ZZ ZZZZZ ZZZ ZZZZZZZZZ. 
+			{// find a liberty of square
 				lib ++;
 				Grid[x,y].setScanned();
 			}
@@ -613,45 +652,49 @@ namespace Go_WinApp
 
 		private void DrawBoard(Graphics g)
 		{
-			//ZZZZZ ZZZ ZZZ ZZZZ ZZZ ZZZZZZZZZZZ
+			// the characters indicates the coordinates of board
 			string[] strV= {"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19"};
 			string [] strH= {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T"};
 
 			Point p1 = new Point(nEdgeLen,nEdgeLen);
-			Point p2 = new Point(nTotalGridWidth+nEdgeLen,nEdgeLen);
+            Point p2 = new Point(nTotalGridWidth+nEdgeLen,nEdgeLen);
+            // draw background color
 			g.FillRectangle(brBoard,nBoardOffset,nBoardOffset,nTotalGridWidth+nBoardOffset,nTotalGridWidth+nBoardOffset);
 			for (int i=0;i<nSize; i++)
 			{
+                // draw the name of the each line
 				g.DrawString(strV[i],this.Font, brBlack, 0, nCoodStart+ nBoardOffset + nUnitGridWidth*i);
 				g.DrawString(strH[i],this.Font, brBlack, nBoardOffset + nCoodStart + nUnitGridWidth*i, 0);
+                // draw lines of board
 				g.DrawLine(penGrid, p1, p2);
 				g.DrawLine(penGrid, SwapXY(p1), SwapXY(p2));
-
+                // increasse line coordinates by unit 
 				p1.Y += nUnitGridWidth;
 				p2.Y += nUnitGridWidth;
 			}
-			//ZZZZ ZZZ ZZZZ ZZ ZZZ ZZZZZ
-			Pen penHi = new Pen(Color.WhiteSmoke, (float)0.5);
+			// draw the side line of the board in order to display 3d effect
+			Pen penHi = new Pen(Color.WhiteSmoke, (float)0.5); // stereoscopic 
 			Pen penLow = new Pen(Color.Gray, (float)0.5);
 
-			g.DrawLine(penHi, nBoardOffset, nBoardOffset, nTotalGridWidth+2*nBoardOffset, nBoardOffset);
-			g.DrawLine(penHi, nBoardOffset, nBoardOffset, nBoardOffset, nTotalGridWidth+2*nBoardOffset);
-			g.DrawLine(penLow, nTotalGridWidth+2*nBoardOffset,nTotalGridWidth+2*nBoardOffset, nBoardOffset+1, nTotalGridWidth+2*nBoardOffset);
-			g.DrawLine(penLow, nTotalGridWidth+2*nBoardOffset,nTotalGridWidth+2*nBoardOffset, nTotalGridWidth+2*nBoardOffset, nBoardOffset+1);
+            g.DrawLine(penHi, nBoardOffset, nBoardOffset, nTotalGridWidth + 2 * nBoardOffset, nBoardOffset);
+            g.DrawLine(penHi, nBoardOffset, nBoardOffset, nBoardOffset, nTotalGridWidth + 2 * nBoardOffset);
+            g.DrawLine(penLow, nTotalGridWidth + 2 * nBoardOffset, nTotalGridWidth + 2 * nBoardOffset, nBoardOffset + 1, nTotalGridWidth + 2 * nBoardOffset);
+            g.DrawLine(penLow, nTotalGridWidth + 2 * nBoardOffset, nTotalGridWidth + 2 * nBoardOffset, nTotalGridWidth + 2 * nBoardOffset, nBoardOffset + 1);
 		}
 
 		void UpdateGoBoard(PaintEventArgs e)
 		{
+            // draw the base board
 			DrawBoard(e.Graphics);
 			
-			//ZZZZ ZZZZ-ZZZZZ. 
+			// draw the nine star of board according to the regular of Go
 			drawStars(e.Graphics);
 
-			//ZZZZ ZZZZZZ
+			// draw move action start
 			drawEverySpot(e.Graphics);
 		}
 
-		//ZZZZ ZZZ ZZZZ ZZ ZZZZZZZZ ZZZZZZZZ
+		// draw the star at indicated position
 		void drawStar(Graphics g, int row, int col) 
 		{
 			g.FillRectangle(brStar,
@@ -661,7 +704,7 @@ namespace Go_WinApp
 				3);
 		}
 
-		//ZZZZ 9 ZZZZZ ZZZ ZZZZZZZ ZZZZ 19Z19. 
+		// There are 9 stars on Go board of size 19Z19. 
 		void  drawStars(Graphics g)
 		{
 			drawStar(g, 4, 4);
@@ -676,7 +719,7 @@ namespace Go_WinApp
 		}
 
 		/**
-		 * ZZZZ Z ZZZZZ (ZZZZZ/ZZZZZ) ZZ ZZZZZZZZ ZZZZZZZZ.
+		 * draw a stone at indicated position
 		 */
 		void drawStone(Graphics g, int row, int col, StoneColor c) 
 		{
@@ -723,7 +766,7 @@ namespace Go_WinApp
 				rGrid.Y + y * nUnitGridWidth - (nUnitGridWidth-1)/8,
 				5, 5);
 		}
-
+        // Draw every spot 
 		void drawEverySpot(Graphics g) 
 		{
 			for (int i=0; i<nSize; i++)
@@ -741,14 +784,14 @@ namespace Go_WinApp
 				markLastMove(g);
 		}
 
-		//ZZZZ Z ZZZZ ZZZZ
+		// Open the saved Go manual
 		private void OpenFile()
 		{
 			OpenFileDialog openDlg = new OpenFileDialog();
-			openDlg.Filter  = "sgf files (*.sgf)|*.sgf|All Files (*.*)|*.*";
-			openDlg.FileName = "" ;
-			openDlg.DefaultExt = ".sgf";
-			openDlg.CheckFileExists = true;
+			openDlg.Filter  = "sgf files (*.sgf)|*.sgf|All Files (*.*)|*.*"; // Set the file type filter
+			openDlg.FileName = "" ; // Set default file name
+			openDlg.DefaultExt = ".sgf";    // Set default file type
+			openDlg.CheckFileExists = true; 
 			openDlg.CheckPathExists = true;
 			
 			DialogResult res = openDlg.ShowDialog ();
@@ -756,15 +799,15 @@ namespace Go_WinApp
 			if(res == DialogResult.OK)
 			{
 				if( !(openDlg.FileName).EndsWith(".sgf") && !(openDlg.FileName).EndsWith(".SGF")) 
-					MessageBox.Show("Unexpected file format","Super Go Format",MessageBoxButtons.OK);
+					MessageBox.Show("Unexpected file format","Super Go Format",MessageBoxButtons.OK); // Check the suffix of file name
 				else
 				{
 					FileStream f = new FileStream(openDlg.FileName, FileMode.Open); 
 					StreamReader r = new StreamReader(f);
-					string s = r.ReadToEnd();
-					gameTree = new GoTree(s);
-					gameTree.reset();
-                    resetBoard();
+					string s = r.ReadToEnd(); // Read input manual
+					gameTree = new GoTree(s);   
+					gameTree.reset();   
+                    resetBoard();       // Clear Board
 					r.Close(); 
 					f.Close();
 				}
@@ -785,7 +828,7 @@ namespace Go_WinApp
 	}
 
 	
-	//ZZZZ ZZZZZZZZZZZZ ZZ ZZZ ZZZZ ZZ ZZZ ZZZZZ
+	// the Spot indicates the cross of line perpendicularly on board
 	public class Spot 
 	{
 		private Boolean bEmpty;
@@ -1038,7 +1081,7 @@ namespace Go_WinApp
 		int m_seq;			//ZZZZZZ ZZZ ZZZ ZZ ZZZZ ZZZZ. 
 		int m_total;
 
-		//ZZZZZZZZZZZ. 
+		// construct move list 
 		public GoVariation(int id)
 		{
 			m_id = id;
@@ -1046,14 +1089,14 @@ namespace Go_WinApp
 			m_seq = 0;
 			m_total = 0;
 		}
-
+        // add movement object to the variation
 		public void addAMove(GoMove gm) 
 		{
 			gm.Seq = m_total ++;
 			m_seq++;
 			m_moves.Add(gm);
 		}
-
+        // 逗我啊
 		public void updateResult(GoMove gm) 
 		{
 		}
@@ -1070,10 +1113,14 @@ namespace Go_WinApp
 
 		public GoMove doPrev()
 		{
-			if (m_seq > 0)
-				return (GoMove)(m_moves[--m_seq]);
-			else 
-				return null;
+            if (m_seq > 0)
+            {
+                Object ret = (m_moves[--m_seq]);
+                m_moves.Remove(ret);
+                return (GoMove)ret;
+            }
+            else
+                return null;
 		}
 
 		/*
@@ -1116,7 +1163,7 @@ namespace Go_WinApp
         public string handicap;
         public string gameEvent;
         public string location;
-        public string time;             // ZZZZZ ZZZZZ ZZZZ ZZZZZ ZZ ZZZ ZZZZ. 
+        public string time;             // the time of the chess manual of the 
         public string unknown_ff;   //ZZZZZZZ ZZZZZZZZZZ. 
         public string unknown_gm;
         public string unknown_vw; 
@@ -1188,7 +1235,7 @@ namespace Go_WinApp
 	}
 
 	/**
-	 * ZZZ ZZZZZZ ZZ Z ZZ ZZZZ.
+	 * the gotree is data structure to record the move information .
 	 * ZZZZ ZZ ZZZ ZZZZ ZZ ZZZ ZZZZ ZZZZ, ZZ ZZZZZ Z ZZZZZ ZZ ZZZZZZZZZZ. 
 	 */
 
@@ -1201,7 +1248,7 @@ namespace Go_WinApp
 		GoVariation _currVar;		//ZZZZZZZ ZZZZZZZZZZZ.
 		string	_stGameComment;
 
-		// ZZZZZZZZZZZ - ZZZZZZ ZZZ ZZZZZZ ZZZZZ ZZ ZZZZZ ZZZZZZ
+		// constructor - initialize a Go tree with a record string 
 		public GoTree(string s)
 		{
 			_vars = new ArrayList(10);
@@ -1212,7 +1259,7 @@ namespace Go_WinApp
 			parseFile(s);
 		}
 
-		//	ZZZZZZZZZZZ - ZZZZZZ ZZ ZZZZZ ZZZZZZ
+        //	constructor - initialize an empty Go tree
 		public GoTree()
 		{
 			_vars = new ArrayList(10);
@@ -1222,7 +1269,7 @@ namespace Go_WinApp
 			_vars.Add(_currVar);
 		}
 
-		public	string Info
+		public	string Info // return current movement comment
 		{
             get
             {
@@ -1236,7 +1283,7 @@ namespace Go_WinApp
 		}
 
 		/**
-		 * ZZZZZ ZZZ ZZZZZ ZZZZ ZZ Z ZZZZZZ. 
+		 * parse the chess manual
 		 */
 		Boolean parseFile(String goStr) 
 		{
@@ -1248,11 +1295,12 @@ namespace Go_WinApp
 				else 
 					iBeg = goStr.IndexOf(";", iEnd);
 				iEnd = goStr.IndexOf(";", iBeg+1);
-				if (iEnd < 0) //ZZ ZZZZ ";"
-					iEnd = goStr.LastIndexOf(")", goStr.Length);		//ZZZ ZZZZ ZZZZZZZ ZZZZZZ ZZ ZZZZZZZZ ZZ ")"
+				if (iEnd < 0) // if exists ";"
+					iEnd = goStr.LastIndexOf(")", goStr.Length);		//the section end up with a ")"
 				if (iBeg >= 0 && iEnd > iBeg) 
 				{
 					string section = goStr.Substring(iBeg+1, iEnd-iBeg-1);
+                    // parse the splited movement action
 					parseASection(section);
 				} 
 				else 
@@ -1554,9 +1602,9 @@ namespace Go_WinApp
 			_currVarId = 0; 
 			_currVar.reset();
 		}
-		public void rewindToStart()
+		public void RewindToStart()
 		{
 
 		}
-	} //ZZZ ZZ ZZZZZZ
+	} //end of go tree
 }

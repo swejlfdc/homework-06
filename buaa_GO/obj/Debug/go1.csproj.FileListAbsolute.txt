@@ -6,3 +6,11 @@ E:\现代程序设计\homework-06\share_to_students\buaa_GO\obj\Debug\go1.Proper
 E:\现代程序设计\homework-06\share_to_students\buaa_GO\obj\Debug\go1.csproj.GenerateResource.Cache
 E:\现代程序设计\homework-06\share_to_students\buaa_GO\obj\Debug\go1.exe
 E:\现代程序设计\homework-06\share_to_students\buaa_GO\obj\Debug\go1.pdb
+C:\Users\swejlfdc\Documents\GitHub\homework-06\buaa_GO\obj\Debug\go1.exe
+C:\Users\swejlfdc\Documents\GitHub\homework-06\buaa_GO\obj\Debug\go1.pdb
+C:\Users\swejlfdc\Documents\GitHub\homework-06\buaa_GO\bin\Debug\go1.exe
+C:\Users\swejlfdc\Documents\GitHub\homework-06\buaa_GO\bin\Debug\go1.pdb
+C:\Users\swejlfdc\Documents\GitHub\homework-06\buaa_GO\obj\Debug\go1.csprojResolveAssemblyReference.cache
+C:\Users\swejlfdc\Documents\GitHub\homework-06\buaa_GO\obj\Debug\Go_WinApp.GoBoard.resources
+C:\Users\swejlfdc\Documents\GitHub\homework-06\buaa_GO\obj\Debug\go1.Properties.Resources.resources
+C:\Users\swejlfdc\Documents\GitHub\homework-06\buaa_GO\obj\Debug\go1.csproj.GenerateResource.Cache
